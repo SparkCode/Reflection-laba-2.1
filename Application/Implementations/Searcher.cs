@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Application.Interfaces;
 
-namespace Application
+namespace Application.Implementations
 {
-    public class Searcher
+    public class Searcher : ISearcher
     {
         private List<string> _fileNames;
 
