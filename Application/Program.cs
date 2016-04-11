@@ -19,8 +19,7 @@ namespace Application
             var typeWorker = new TypeWorker();
             var seacher = new Searcher();
             var solve = new Solve();
-
-            var answer = solve.GetSolve(reflectionWorker, typeWorker, seacher);
+            var answer = solve.GetSolve<IPlugin>(reflectionWorker, typeWorker, seacher);
             answer.ForEach(Console.WriteLine);
         }
     }

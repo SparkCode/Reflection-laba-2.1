@@ -6,8 +6,8 @@ namespace Application.Implementations
 {
     public class TypeWorker : ITypeWorker
     {
-        public static bool IsClassWithInterface<T>(Type type)
-           => type.IsClass && type.GetInterfaces().Any(y => y.GUID == typeof(T).GUID);
+        public bool IsClassWithInterface<T>(Type type)
+           => type.IsClass && type.GetInterfaces().Any(y => typeof(T).IsAssignableFrom(y));
 
         public object GetObject(Type type) 
             => Activator.CreateInstance(type);

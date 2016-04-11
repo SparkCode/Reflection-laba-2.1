@@ -5,10 +5,8 @@ namespace Application.Interfaces
 {
     public interface IAssemblyWorker
     {
+        IEnumerable<Type> GetTypes(string path, Func<Type, bool> conditionType);
+        IEnumerable<Type> GetTypesFromDlls(IEnumerable<string> dllPaths, Func<Type, bool> conditionType);
         bool AssemblyHasAlreadyLoaded(string path);
-        Type GetType(string path, string fullName);
-        IEnumerable<Type> GetReflectionOnlyTypes(string assemblyPath, Func<Type, bool> conditionType);
-        IEnumerable<Type> GetTypesFromDll(string path);
-        IEnumerable<Type> GetTypesFromDlls(IEnumerable<string> dllPaths);
     }
 }

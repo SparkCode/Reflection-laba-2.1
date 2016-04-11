@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Application.Interfaces;
+using Framework;
 
 namespace Application.Implementations
 {
@@ -11,14 +12,13 @@ namespace Application.Implementations
         private static string GetSolutionPath()
             => Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\"));
 
-        public List<string> GetSolve(IAssemblyWorker reflectionWorker, ITypeWorker typeWorker, ISearcher seacher)
+        public List<object> GetSolve<TInterface>(IAssemblyWorker reflectionWorker, ITypeWorker typeWorker, ISearcher seacher) 
         {
             var solutionPath = GetSolutionPath();
-            var dllPaths = seacher.GetFilePathsByRoot(solutionPath).FilePathsWithExtension(".dll");
-            var types = reflectionWorker.GetTypesFromDlls(dllPaths);
+            var dllPaths = seacher.GetFilePathsByRoot(solutionPath).FilesWithExtension(".dll");
+            var types = reflectionWorker.GetTypesFromDlls(dllPaths, typeWorker.IsClassWithInterface<TInterface>);
             var objects = types.Select(typeWorker.GetObject);
-
-            return objects.Select(x => x.ToString()).ToList();
+            return objects.ToList();
         }
     }
 }

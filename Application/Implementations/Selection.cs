@@ -5,7 +5,7 @@ namespace Application.Implementations
 {
     public static class Selection
     {
-        public static IEnumerable<string> FilePathsWithExtension(this IEnumerable<string> paths, string extention)
+        public static IEnumerable<string> FilesWithExtension(this IEnumerable<string> paths, string extention)
             => paths.Where(s => s.EndsWith(extention));
     }
 }
