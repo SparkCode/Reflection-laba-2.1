@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,39 +12,36 @@ namespace Application
 {
     class Program
     {
-        private static List<string> FileNames = new List<string>();
+        private static bool IsClassWithInterface<T>(Type type) 
+            => type.IsClass && type.GetInterfaces().Any(y => y.GUID == typeof(T).GUID);
 
-        private static void DirSearch(string sDir)
+        private static string GetSolutionPath() 
+            => Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\"));
+
+        private static IEnumerable<string> GetDllPathsFromSolution()
         {
-            try
-            {
-                foreach (string d in Directory.GetDirectories(sDir))
-                {
-                    foreach (string f in Directory.GetFiles(d))
-                    {
-                        FileNames.Add(f);
-                    }
-                    DirSearch(d);
-                }
-            }
-            catch (System.Exception excpt)
-            {
-                Console.WriteLine(excpt.Message);
-            }
-        }
-
+            var solutionPath = GetSolutionPath();
+            return new Searcher().GetFilePathsByRoot(solutionPath).Where(s => s.EndsWith(".dll"));
+        } 
 
         static void Main(string[] args)
         {
-
-            var solutionPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..\\..\\..\\"));
-            DirSearch(solutionPath);
-            var b = FileNames
-                .Where(s => s.EndsWith(".dll"))
-                .SelectMany(x => Assembly.LoadFrom(x).GetTypes())
-                .Where(x => x.IsClass)
-                .Where(x => x.GetInterfaces().Count(y => y.IsAssignableFrom(typeof (IPlugin))) > 1)
-                .ToList();
+            var reflectionWorker = new ReflectionWorker();
+            var dllPaths = GetDllPathsFromSolution();
+            foreach (var dll in dllPaths)
+            {
+                try
+                {
+                    var reflectionOnlyTypes = reflectionWorker.GetReflectionOnlyTypes(dll, IsClassWithInterface<IPlugin>);
+                    var types = reflectionOnlyTypes.Select(x => reflectionWorker.GetType(dll, x.FullName));
+                    var objects = types.Select(reflectionWorker.GetObject);
+                    objects.ToList().ForEach(x => Console.WriteLine(x.ToString()));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+            }
         }
     }
 }
